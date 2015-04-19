@@ -292,8 +292,10 @@ module Insn = struct
     | `BX_RET
     | `BX_pred
     | `Bcc
+    | `tBL
     | `tB
     | `tBcc
+    | `tBX
   ] with bin_io, compare, sexp, enumerate
 
   type special = [

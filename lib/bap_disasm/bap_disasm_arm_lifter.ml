@@ -973,6 +973,12 @@ let lift_branch mem ops insn =
   | `tBcc, [|offset; cond; _|] ->
     Branch.lift offset ~cond ~thumb:true addr
 
+  | `tBX, [|target; cond; _|] ->
+    Branch.lift target ~cond ~x:true ~thumb:true addr
+
+  | `tBL, [|cond; _; offset; _|] ->
+    Branch.lift offset ~cond ~link:true ~thumb:true addr
+
   | insn,ops ->
     fail _here_ "ops %s doesn't match branch insn %s"
       (string_of_ops ops) (Arm.Insn.to_string (insn :> insn))

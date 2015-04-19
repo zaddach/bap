@@ -29,8 +29,9 @@ let lift operand ?link ?x:_ ?cond ?thumb addr =
       Bil.int r in
   (* TODO detect change to thumb in `x` *)
   let jump_instr = [Bil.jmp target] in
+  let instr_size = word 4 in
   let link_instr =
-    let next_addr = Word.Int_exn.(addr + pc_offset - word 4) in
+    let next_addr = Word.Int_exn.(addr + instr_size) in
     match link with
     | Some true -> [Bil.move Env.lr Bil.(int next_addr)]
     | _         -> [] in
