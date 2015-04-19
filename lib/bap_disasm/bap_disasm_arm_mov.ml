@@ -16,6 +16,7 @@ let lift ?dest src1 ?src2 (itype ) ?sreg ?simm raw ~wflag cond =
     | Some (Op.Imm _) -> fail _here_ "dest is not a reg" in
   let s1 : exp = exp_of_op src1 in
   let s2 : exp = match src2 with
+    | Some (Op.Reg `PC) -> Bil.(Bil.(int Word.(of_int ~width:32 0xfffffffc)) land (exp_of_op (Op.Reg `PC)))
     | Some src -> exp_of_op src
     | None     -> zero reg32_t in
 
