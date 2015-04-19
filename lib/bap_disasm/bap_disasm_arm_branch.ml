@@ -10,11 +10,13 @@ module Mem = Bap_disasm_arm_mem
 module Env = Bap_disasm_arm_env
 module Shift = Bap_disasm_arm_shift
 
-let pc_offset = Word.(of_int 8 ~width:32)         (* PC is ahead by some bytes in ARM *)
 let word = Word.of_int ~width:32
 
 
-let lift operand ?link ?x:_ ?cond addr =
+let lift operand ?link ?x:_ ?cond ?thumb addr =
+  let pc_offset = match thumb with
+    Some true -> Word.(of_int 4 ~width:32)
+    | _ -> Word.(of_int 8 ~width:32) in
   let target =
     match operand with
     | Op.Reg r -> Bil.var (Env.of_reg r)
