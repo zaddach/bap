@@ -143,6 +143,22 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
     lift ~dest src1 ~src2 `ADD ~simm:shift_imm
       mem cond ~wflag
 
+  | `tADDi3, [|dest; wflag; src1; src2; cond; _|]
+  | `tADDi8, [|dest; wflag; src1; src2; cond; _|]
+  | `tADDrr, [|dest; wflag; src1; src2; cond; _|] ->
+    lift ~dest src1 ~src2 `ADD mem cond ~wflag
+
+  | `tADDhirr, [|dest; src1; src2; cond; _|] ->
+    lift ~dest src1 ~src2 `ADD mem cond ~wflag:(Op.Reg `Nil)
+  
+  (* TODO: Not exactly correct, should not take PC but PC & 0xfffffffc *) 
+  | `tADR, [|dest; src1; cond; _|] ->
+    lift ~dest src1 ~src2:(Op.Reg `PC) `ADD mem cond ~wflag:(Op.Reg `Nil)
+
+  | `tADDrSPi, [|dest; src1; src2; cond; _|]
+  | `tADDspi, [|dest; src1; src2; cond; _|] ->
+    lift ~dest src1 ~src2 `ADD mem cond ~wflag:(Op.Reg `Nil)
+
   | `SUBri, [|dest; src1; src2; cond; _; wflag|]
   | `SUBrr, [|dest; src1; src2; cond; _; wflag|] ->
     lift ~dest src1 ~src2 `SUB mem cond ~wflag
@@ -174,6 +190,9 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
   | `ADCrsi, [|dest; src1; src2; shift_imm; cond; _; wflag|] ->
     lift ~dest src1 ~src2 `ADC ~simm:shift_imm
       mem cond ~wflag
+
+  | `tADC, [|dest; wflag; src1; src2; cond; _|] ->
+    lift ~dest src1 ~src2 `ADC mem cond ~wflag
 
   | `SBCri, [|dest; src1; src2; cond; _; wflag|]
   | `SBCrr, [|dest; src1; src2; cond; _; wflag|] ->

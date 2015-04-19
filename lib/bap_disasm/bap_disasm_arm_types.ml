@@ -94,10 +94,18 @@ module Insn = struct
     | `ADCrr
     | `ADCrsi
     | `ADCrsr
+    | `tADC
     | `ADDri
     | `ADDrr
     | `ADDrsi
     | `ADDrsr
+    | `tADDi3
+    | `tADDi8
+    | `tADDrr
+    | `tADDhirr
+    | `tADR
+    | `tADDrSPi
+    | `tADDspi
     | `ANDri
     | `ANDrr
     | `ANDrsi
