@@ -118,6 +118,10 @@ public:
     create(const char *triple, const char *cpu, int debug_level) {
         std::string error;
 
+        if (std::string(triple) == "thumb") {
+            triple = "thumb-eabi";
+        }
+
         // returned value is not allocted
         const llvm::Target *target =
             llvm::TargetRegistry::lookupTarget(triple, error);
