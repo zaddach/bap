@@ -106,6 +106,7 @@ module Insn = struct
     | `BICrr
     | `BICrsi
     | `BICrsr
+    | `tBIC
     | `CMNri
     | `CMNzrr
     | `CMNzrsi
@@ -118,6 +119,7 @@ module Insn = struct
     | `EORrr
     | `EORrsi
     | `EORrsr
+    | `tEOR
     | `MOVTi16
     | `MOVi
     | `MOVi16
@@ -132,6 +134,7 @@ module Insn = struct
     | `ORRrr
     | `ORRrsi
     | `ORRrsr
+    | `tORR
     | `RSBri
     | `RSBrr
     | `RSBrsi
@@ -144,10 +147,15 @@ module Insn = struct
     | `SBCrr
     | `SBCrsi
     | `SBCrsr
+    | `tSBC
     | `SUBri
     | `SUBrr
     | `SUBrsi
     | `SUBrsr
+    | `tSUBi3
+    | `tSUBi8
+    | `tSUBrr
+    | `tSUBspi
     | `TEQri
     | `TEQrr
     | `TEQrsi

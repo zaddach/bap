@@ -74,6 +74,9 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
     lift ~dest src1 ~src2 `BIC ~simm:shift_imm
       mem cond ~wflag
 
+  | `tBIC,  [|dest; wflag; src1; src2; cond; _|] ->
+    lift ~dest src1 ~src2 `BIC mem cond ~wflag
+
   | `EORri, [|dest; src1; src2; cond; _; wflag|]
   | `EORrr, [|dest; src1; src2; cond; _; wflag|] ->
     lift ~dest src1 ~src2 `EOR mem cond ~wflag
@@ -86,6 +89,9 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
     lift ~dest src1 ~src2 `EOR ~simm:shift_imm
       mem cond ~wflag
 
+  | `tEOR, [|dest; wflag; src1; src2; cond; _|] ->
+    lift ~dest src1 ~src2 `EOR mem cond ~wflag
+
   | `ORRri, [|dest; src1; src2; cond; _; wflag|]
   | `ORRrr, [|dest; src1; src2; cond; _; wflag|] ->
     lift ~dest src1 ~src2 `ORR mem cond ~wflag
@@ -97,6 +103,9 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
   | `ORRrsi, [|dest; src1; src2; shift_imm; cond; _; wflag|] ->
     lift ~dest src1 ~src2 `ORR ~simm:shift_imm
       mem cond ~wflag
+
+  | `tORR, [|dest; wflag; src1; src2; cond; _|] ->
+    lift ~dest src1 ~src2 `ORR mem cond ~wflag
 
   | `TEQri, [|src1; src2; cond; _|]
   | `TEQrr, [|src1; src2; cond; _|] ->
@@ -146,6 +155,14 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
     lift ~dest src1 ~src2 `SUB ~simm:shift_imm
       mem cond ~wflag
 
+  | `tSUBi3, [|dest; wflag; src1; src2; cond; _|] 
+  | `tSUBi8, [|dest; wflag; src1; src2; cond; _|] 
+  | `tSUBrr, [|dest; wflag; src1; src2; cond; _|] ->
+    lift ~dest src1 ~src2 `SUB mem cond ~wflag
+
+  | `tSUBspi, [|dest; src1; src2; cond; _|] ->
+    lift ~dest src1 ~src2 `SUB mem cond ~wflag:(Op.Reg `Nil)
+
   | `ADCri, [|dest; src1; src2; cond; _; wflag|]
   | `ADCrr, [|dest; src1; src2; cond; _; wflag|] ->
     lift ~dest src1 ~src2 `ADC mem cond ~wflag
@@ -169,6 +186,9 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
   | `SBCrsi, [|dest; src1; src2; shift_imm; cond; _; wflag|] ->
     lift ~dest src1 ~src2 `SBC ~simm:shift_imm
       mem cond ~wflag
+
+  | `tSBC, [|dest; wflag; src1; src2; cond; _|] ->
+    lift ~dest src1 ~src2 `SBC mem cond ~wflag
 
   | `RSBri, [|dest; src1; src2; cond; _; wflag|]
   | `RSBrr, [|dest; src1; src2; cond; _; wflag|] ->
