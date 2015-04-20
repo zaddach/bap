@@ -110,6 +110,9 @@ module Insn = struct
     | `ANDrr
     | `ANDrsi
     | `ANDrsr
+    | `tAND
+    | `tASRri
+    | `tASRrr
     | `BICri
     | `BICrr
     | `BICrsi

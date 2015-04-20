@@ -33,6 +33,24 @@ let shift_immediate =
     Op.Imm word_imm -> Op.(Imm Word.(word_imm lsl Word.(of_int ~width:32 x)))
     | _ -> fail _here_ "Only immediate can be shifted"
 
+let word_of_shift = 
+  fun shift -> Word.of_int32 (match shift with
+    `ASR -> 1l
+    | `LSL -> 2l
+    | `LSR -> 3l
+    | `ROR -> 4l
+    | `RRX -> 5l )
+
+let encode_shift =
+  fun ?imm shift -> 
+    let unpacked_imm = match imm with
+      Some (Op.Imm x) -> x
+      | None          -> Word.(of_int32 0l)
+      | _             -> fail _here_ "Only immediate can be shifted" in
+    let encoded_shift = word_of_shift shift in
+    let three = Word.of_int32 3l in
+    Op.(Imm Word.(Word.(unpacked_imm lsl three) lor encoded_shift))
+
 let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
   let open Mov in
   match insn, ops with
@@ -56,7 +74,8 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
     lift ~dest src `MVN ~simm:shift_imm mem cond ~wflag
 
   | `ANDri, [|dest; src1; src2; cond; _; wflag|]
-  | `ANDrr, [|dest; src1; src2; cond; _; wflag|] ->
+  | `ANDrr, [|dest; src1; src2; cond; _; wflag|] 
+  | `tAND,  [|dest; wflag; src1; src2; cond; _|] ->
     lift ~dest src1 ~src2 `AND mem cond ~wflag
 
   | `ANDrsr, [|dest; src1; src2; shift_reg; shift_imm; cond; _; wflag|] ->
@@ -67,9 +86,14 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
     lift ~dest src1 ~src2 `AND ~simm:shift_imm
       mem cond ~wflag
 
+  | `tASRri, [|dest; wflag; src; shift_imm; cond; _|] ->
+    lift ~dest src `MOV ~simm:(encode_shift ~imm:shift_imm `ASR) mem cond ~wflag 
+  | `tASRrr, [|dest; wflag; src; sreg; cond; _|] ->
+    lift ~dest src `MOV ~sreg ~simm:(encode_shift `ASR)  mem cond ~wflag 
+
   | `BICri, [|dest; src1; src2; cond; _; wflag|]
   | `BICrr, [|dest; src1; src2; cond; _; wflag|] ->
-    lift ~dest src1 ~src2 `BIC mem cond ~wflag
+    lift ~dest src1 ~src2 `MOV mem cond ~wflag
 
   | `BICrsr, [|dest; src1; src2; shift_reg; shift_imm; cond; _; wflag|] ->
     lift ~dest src1 ~src2 `BIC ~sreg:shift_reg ~simm:shift_imm
