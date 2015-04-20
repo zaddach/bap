@@ -156,6 +156,7 @@ module Insn = struct
     | `ORRrsi
     | `ORRrsr
     | `tORR
+    | `tROR
     | `RSBri
     | `RSBrr
     | `RSBrsi

@@ -144,6 +144,9 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
     lift ~dest src1 ~src2 `ORR ~simm:shift_imm
       mem cond ~wflag
 
+  | `tROR, [|dest; wflag; src1; src2; cond; _|] ->
+    lift ~dest src1`MOV ~simm:(encode_shift `ROR) ~sreg:src2 mem cond ~wflag
+
   | `TEQri, [|src1; src2; cond; _|]
   | `TEQrr, [|src1; src2; cond; _|] ->
     lift src1 ~src2 `EOR mem cond ~wflag:(Reg `CPSR)
