@@ -16,7 +16,6 @@ let lift ?dest src1 ?src2 (itype ) ?sreg ?simm raw ~wflag cond =
     | Some (Op.Imm _) -> fail _here_ "dest is not a reg" in
   let s1 : exp = exp_of_op src1 in
   let s2 : exp = match src2 with
-    | Some (Op.Reg `PC) -> Bil.(Bil.(int Word.(of_int ~width:32 0xfffffffc)) land (exp_of_op (Op.Reg `PC)))
     | Some src -> exp_of_op src
     | None     -> zero reg32_t in
 
@@ -65,6 +64,7 @@ let lift ?dest src1 ?src2 (itype ) ?sreg ?simm raw ~wflag cond =
         | `SUB -> set_sub v1 v2 vd reg32_t
         | `RSB -> set_sub v2 v1 vd reg32_t
         | `ADD -> set_add v1 v2 vd reg32_t
+        | `ADR -> set_add v1 v2 vd reg32_t
         | `ADC -> set_adc v1 v2 vd reg32_t
         | `SBC -> set_sbc v1 v2 vd reg32_t
         | `RSC -> set_sbc v2 v1 vd reg32_t in
@@ -80,6 +80,7 @@ let lift ?dest src1 ?src2 (itype ) ?sreg ?simm raw ~wflag cond =
     | `SUB -> Bil.(s1 - s2)
     | `RSB -> Bil.(s2 - s1)
     | `ADD -> Bil.(s1 + s2)
+    | `ADR -> Bil.(Bil.(s1 land Bil.(int Word.(of_int32 0xfffffffcl))) + s2)
     | `ADC -> Bil.(s1 + s2 + cast unsigned 32 vcf)
     | `SBC -> Bil.(s1 + lnot s2 + cast unsigned 32 vcf)
     | `RSC -> Bil.(lnot s1 + s2 + cast unsigned 32 vcf) in

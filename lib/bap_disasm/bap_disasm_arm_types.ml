@@ -356,7 +356,7 @@ type mode_m = IA | IB | DA | DB
 type update_m = Update | NoUpdate
 
 (** Types for data movement operations  *)
-type arth = [`ADD | `ADC | `SBC | `RSC | `SUB | `RSB ]
+type arth = [`ADD | `ADR | `ADC | `SBC | `RSC | `SUB | `RSB ]
 type move = [`AND | `BIC | `EOR | `MOV | `MVN | `ORR ]
 type data_oper = [ arth | move]
 

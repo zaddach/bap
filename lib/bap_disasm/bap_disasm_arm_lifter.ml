@@ -28,6 +28,11 @@ let int32 x = Bil.int (word x)
 let string_of_ops ops =
   Format.asprintf "%a" Sexp.pp (sexp_of_array sexp_of_op ops)
 
+let shift_immediate =
+  fun imm x -> match imm with
+    Op.Imm word_imm -> Op.(Imm Word.(word_imm lsl Word.(of_int ~width:32 x)))
+    | _ -> fail _here_ "Only immediate can be shifted"
+
 let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
   let open Mov in
   match insn, ops with
@@ -151,13 +156,12 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
   | `tADDhirr, [|dest; src1; src2; cond; _|] ->
     lift ~dest src1 ~src2 `ADD mem cond ~wflag:(Op.Reg `Nil)
   
-  (* TODO: Not exactly correct, should not take PC but PC & 0xfffffffc *) 
-  | `tADR, [|dest; src1; cond; _|] ->
-    lift ~dest src1 ~src2:(Op.Reg `PC) `ADD mem cond ~wflag:(Op.Reg `Nil)
+  | `tADR, [|dest; imm; cond; _|] ->
+    lift ~dest (Op.Reg `PC) ~src2:(shift_immediate imm 2) `ADR mem cond ~wflag:(Op.Reg `Nil)
 
-  | `tADDrSPi, [|dest; src1; src2; cond; _|]
-  | `tADDspi, [|dest; src1; src2; cond; _|] ->
-    lift ~dest src1 ~src2 `ADD mem cond ~wflag:(Op.Reg `Nil)
+  | `tADDrSPi, [|dest; src1; imm; cond; _|]
+  | `tADDspi, [|dest; src1; imm; cond; _|] ->
+    lift ~dest src1 ~src2:(shift_immediate imm 2) `ADD mem cond ~wflag:(Op.Reg `Nil)
 
   | `SUBri, [|dest; src1; src2; cond; _; wflag|]
   | `SUBrr, [|dest; src1; src2; cond; _; wflag|] ->
@@ -176,8 +180,8 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
   | `tSUBrr, [|dest; wflag; src1; src2; cond; _|] ->
     lift ~dest src1 ~src2 `SUB mem cond ~wflag
 
-  | `tSUBspi, [|dest; src1; src2; cond; _|] ->
-    lift ~dest src1 ~src2 `SUB mem cond ~wflag:(Op.Reg `Nil)
+  | `tSUBspi, [|dest; src1; imm; cond; _|] ->
+    lift ~dest src1 ~src2:(shift_immediate imm 2) `SUB mem cond ~wflag:(Op.Reg `Nil)
 
   | `ADCri, [|dest; src1; src2; cond; _; wflag|]
   | `ADCrr, [|dest; src1; src2; cond; _; wflag|] ->
