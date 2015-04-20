@@ -66,7 +66,8 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
     lift ~dest src `MOV mem cond ~wflag:(Op.Reg `Nil)
 
   | `MVNi, [|dest; src; cond; _; wflag|]
-  | `MVNr, [|dest; src; cond; _; wflag|] ->
+  | `MVNr, [|dest; src; cond; _; wflag|]
+  | `tMVN, [|dest; wflag; src; cond; _|] ->
     lift ~dest src `MVN mem cond ~wflag
 
   | `MVNsr, [|dest; src; shift_reg; shift_imm; cond; _; wflag|] ->
@@ -248,6 +249,9 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
   | `RSBri, [|dest; src1; src2; cond; _; wflag|]
   | `RSBrr, [|dest; src1; src2; cond; _; wflag|] ->
     lift ~dest src1 ~src2 `RSB mem cond ~wflag
+
+  | `tRSB, [|dest; wflag; src2; cond; _|] ->
+    lift ~dest Op.(Imm Word.(of_int32 0l))  ~src2 `RSB mem cond ~wflag
 
   | `RSBrsr, [|dest; src1; src2; shift_reg; shift_imm; cond; _; wflag|] ->
     lift ~dest src1 ~src2 `RSB ~sreg:shift_reg ~simm:shift_imm

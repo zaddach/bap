@@ -150,6 +150,7 @@ module Insn = struct
     | `MVNr
     | `MVNsi
     | `MVNsr
+    | `tMVN
     | `ORRri
     | `ORRrr
     | `ORRrsi
@@ -159,6 +160,7 @@ module Insn = struct
     | `RSBrr
     | `RSBrsi
     | `RSBrsr
+    | `tRSB
     | `RSCri
     | `RSCrr
     | `RSCrsi
