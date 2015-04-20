@@ -134,12 +134,18 @@ module Insn = struct
     | `EORrsi
     | `EORrsr
     | `tEOR
+    | `tLSLri
+    | `tLSLrr
+    | `tLSRri
+    | `tLSRrr
     | `MOVTi16
     | `MOVi
     | `MOVi16
     | `MOVr
     | `MOVsi
     | `MOVsr
+    | `tMOVi8
+    | `tMOVr
     | `MVNi
     | `MVNr
     | `MVNsi

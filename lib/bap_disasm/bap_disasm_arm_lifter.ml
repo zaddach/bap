@@ -55,12 +55,15 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
   let open Mov in
   match insn, ops with
   | `MOVi,  [|dest; src; cond; _; wflag|]
-  | `MOVr,  [|dest; src; cond; _; wflag|] ->
+  | `MOVr,  [|dest; src; cond; _; wflag|] 
+  | `tMOVi8, [|dest; wflag; src; cond; _|] ->
     lift ~dest src `MOV mem cond ~wflag
   | `MOVsr, [|dest; src; sreg; simm; cond; _; wflag|] ->
     lift ~dest src `MOV mem cond ~wflag ~sreg ~simm
   | `MOVsi, [|dest; src; shift_imm; cond; _; wflag|] ->
     lift ~dest src `MOV ~simm:shift_imm mem cond ~wflag
+  | `tMOVr, [|dest; src; cond; _|] ->
+    lift ~dest src `MOV mem cond ~wflag:(Op.Reg `Nil)
 
   | `MVNi, [|dest; src; cond; _; wflag|]
   | `MVNr, [|dest; src; cond; _; wflag|] ->
@@ -116,6 +119,16 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
   | `EORrsi, [|dest; src1; src2; shift_imm; cond; _; wflag|] ->
     lift ~dest src1 ~src2 `EOR ~simm:shift_imm
       mem cond ~wflag
+
+  | `tLSLri, [|dest; wflag; src; shift_imm; cond; _|] ->
+    lift ~dest src `MOV ~simm:(encode_shift ~imm:shift_imm `LSL) mem cond ~wflag 
+  | `tLSLrr, [|dest; wflag; src; sreg; cond; _|] ->
+    lift ~dest src `MOV ~sreg ~simm:(encode_shift `LSL)  mem cond ~wflag 
+
+  | `tLSRri, [|dest; wflag; src; shift_imm; cond; _|] ->
+    lift ~dest src `MOV ~simm:(encode_shift ~imm:shift_imm `LSR) mem cond ~wflag 
+  | `tLSRrr, [|dest; wflag; src; sreg; cond; _|] ->
+    lift ~dest src `MOV ~sreg ~simm:(encode_shift `LSR)  mem cond ~wflag 
 
   | `ORRri, [|dest; src1; src2; cond; _; wflag|]
   | `ORRrr, [|dest; src1; src2; cond; _; wflag|]
