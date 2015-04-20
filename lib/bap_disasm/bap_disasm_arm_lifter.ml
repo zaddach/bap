@@ -92,7 +92,8 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
     lift ~dest src `MOV ~sreg ~simm:(encode_shift `ASR)  mem cond ~wflag 
 
   | `BICri, [|dest; src1; src2; cond; _; wflag|]
-  | `BICrr, [|dest; src1; src2; cond; _; wflag|] ->
+  | `BICrr, [|dest; src1; src2; cond; _; wflag|]
+  | `tBIC,  [|dest; wflag; src1; src2; cond; _|] ->
     lift ~dest src1 ~src2 `MOV mem cond ~wflag
 
   | `BICrsr, [|dest; src1; src2; shift_reg; shift_imm; cond; _; wflag|] ->
@@ -103,11 +104,9 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
     lift ~dest src1 ~src2 `BIC ~simm:shift_imm
       mem cond ~wflag
 
-  | `tBIC,  [|dest; wflag; src1; src2; cond; _|] ->
-    lift ~dest src1 ~src2 `BIC mem cond ~wflag
-
   | `EORri, [|dest; src1; src2; cond; _; wflag|]
-  | `EORrr, [|dest; src1; src2; cond; _; wflag|] ->
+  | `EORrr, [|dest; src1; src2; cond; _; wflag|]
+  | `tEOR, [|dest; wflag; src1; src2; cond; _|] ->
     lift ~dest src1 ~src2 `EOR mem cond ~wflag
 
   | `EORrsr, [|dest; src1; src2; shift_reg; shift_imm; cond; _; wflag|] ->
@@ -118,11 +117,9 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
     lift ~dest src1 ~src2 `EOR ~simm:shift_imm
       mem cond ~wflag
 
-  | `tEOR, [|dest; wflag; src1; src2; cond; _|] ->
-    lift ~dest src1 ~src2 `EOR mem cond ~wflag
-
   | `ORRri, [|dest; src1; src2; cond; _; wflag|]
-  | `ORRrr, [|dest; src1; src2; cond; _; wflag|] ->
+  | `ORRrr, [|dest; src1; src2; cond; _; wflag|]
+  | `tORR, [|dest; wflag; src1; src2; cond; _|] ->
     lift ~dest src1 ~src2 `ORR mem cond ~wflag
 
   | `ORRrsr, [|dest; src1; src2; shift_reg; shift_imm; cond; _; wflag|] ->
@@ -132,9 +129,6 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
   | `ORRrsi, [|dest; src1; src2; shift_imm; cond; _; wflag|] ->
     lift ~dest src1 ~src2 `ORR ~simm:shift_imm
       mem cond ~wflag
-
-  | `tORR, [|dest; wflag; src1; src2; cond; _|] ->
-    lift ~dest src1 ~src2 `ORR mem cond ~wflag
 
   | `TEQri, [|src1; src2; cond; _|]
   | `TEQrr, [|src1; src2; cond; _|] ->
@@ -149,7 +143,8 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
       mem cond ~wflag:(Reg `CPSR)
 
   | `TSTri, [|src1; src2; cond; _|]
-  | `TSTrr, [|src1; src2; cond; _|] ->
+  | `TSTrr, [|src1; src2; cond; _|] 
+  | `tTST, [|src1; src2; cond; _|] ->
     lift src1 ~src2 `AND mem cond ~wflag:(Reg `CPSR)
 
   | `TSTrsr, [|src1; src2; shift_reg; shift_imm; cond; _|] ->
@@ -262,7 +257,10 @@ let lift_move mem ops (insn : Arm.Insn.move) : stmt list =
       mem cond ~wflag
 
   | `CMPri, [|src1; src2; cond; _|]
-  | `CMPrr, [|src1; src2; cond; _|] ->
+  | `CMPrr, [|src1; src2; cond; _|]
+  | `tCMPr, [|src1; src2; cond; _|]
+  | `tCMPi8, [|src1; src2; cond; _|]
+  | `tCMPhir, [|src1; src2; cond; _|] ->
     lift src1 ~src2 `SUB mem cond ~wflag:(Reg `CPSR)
 
   | `CMPrsr, [|src1; src2; shift_reg; shift_imm; cond; _|] ->

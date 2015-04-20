@@ -126,6 +126,9 @@ module Insn = struct
     | `CMPrr
     | `CMPrsi
     | `CMPrsr
+    | `tCMPi8
+    | `tCMPr
+    | `tCMPhir
     | `EORri
     | `EORrr
     | `EORrsi
@@ -175,6 +178,7 @@ module Insn = struct
     | `TSTrr
     | `TSTrsi
     | `TSTrsr
+    | `tTST
   ] with bin_io, compare, sexp, enumerate
 
   type bits = [
