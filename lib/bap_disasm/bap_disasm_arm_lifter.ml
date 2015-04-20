@@ -582,6 +582,22 @@ let lift_mem_multi ops insn =
         base DA Update Ld in
     exec insns cond
 
+  | `tLDMIA, base :: cond :: _unknown :: dest_list ->
+    let insns = Mem_shift.lift_m dest_list base IA Update Ld in
+    exec insns cond
+
+  | `tSTMIA_UPD, base :: _wr_flag :: cond :: _unknown :: dest_list ->
+    let insns = Mem_shift.lift_m dest_list base IA Update St in
+    exec insns cond
+
+  | `tPUSH, cond :: _unknown :: dest_list ->
+    let insns = Mem_shift.lift_m dest_list Op.(Reg `SP) DB Update St in
+    exec insns cond
+
+  | `tPOP, cond :: _unknown :: dest_list ->
+    let insns = Mem_shift.lift_m dest_list Op.(Reg `SP) IA Update Ld in
+    exec insns cond
+
   | _ ->
     fail _here_ "ops %s doesn't match multi arg insn %s"
       (string_of_ops ops) (Arm.Insn.to_string (insn :> insn))
@@ -1014,6 +1030,94 @@ let lift_mem ops insn =
     in
     let result = [Bil.move (Env.of_reg dest1) (int32 0)] in
     exec (insns @ result) cond
+  
+  | `tLDRi, [|dest1; base; offset; cond; _|] ->
+    let insns =
+      Mem_shift.lift_r_op ~dest1 ~base ~offset:(shift_immediate offset 2) Offset Unsigned W Ld
+    in
+    exec insns cond
+
+  | `tLDRr, [|dest1; base; offset; cond; _|] ->
+    let insns = Mem_shift.lift_r_op ~dest1 ~base ~offset Offset Unsigned W Ld
+    in
+    exec insns cond 
+
+  | `tLDRpci, [|dest1; offset; cond; _|] ->
+    let insns = Mem_shift.lift_r_op ~dest1 ~base:(Op.Reg `PC) ~offset:(shift_immediate offset 2) Offset Unsigned W Ld
+    in
+    exec insns cond 
+
+  | `tLDRspi, [|dest1; base; offset; cond; _|] ->
+    let insns = Mem_shift.lift_r_op ~dest1 ~base ~offset:(shift_immediate offset 2) Offset Unsigned W Ld
+    in
+    exec insns cond 
+
+  | `tLDRBi, [|dest1; base; offset; cond; _|] ->
+    let insns = Mem_shift.lift_r_op ~dest1 ~base ~offset:(shift_immediate offset 2) Offset Unsigned B Ld
+    in
+    exec insns cond 
+
+  | `tLDRBr, [|dest1; base; offset; cond; _|] ->
+    let insns = Mem_shift.lift_r_op ~dest1 ~base ~offset Offset Unsigned H Ld
+    in
+    exec insns cond 
+
+  | `tLDRHi, [|dest1; base; offset; cond; _|] ->
+    let insns = Mem_shift.lift_r_op ~dest1 ~base ~offset:(shift_immediate offset 2) Offset Unsigned B Ld
+    in
+    exec insns cond 
+
+  | `tLDRHr, [|dest1; base; offset; cond; _|] ->
+    let insns = Mem_shift.lift_r_op ~dest1 ~base ~offset Offset Unsigned H Ld
+    in
+    exec insns cond 
+
+  | `tLDRSB, [|dest1; base; offset; cond; _|] ->
+    let insns = Mem_shift.lift_r_op ~dest1 ~base ~offset Offset Signed B Ld
+    in
+    exec insns cond 
+
+  | `tLDRSH, [|dest1; base; offset; cond; _|] ->
+    let insns = Mem_shift.lift_r_op ~dest1 ~base ~offset Offset Signed H Ld
+    in
+    exec insns cond 
+
+  | `tSTRi, [|dest1; base; offset; cond; _|] ->
+    let insns =
+      Mem_shift.lift_r_op ~dest1 ~base ~offset:(shift_immediate offset 2) Offset Unsigned W St
+    in
+    exec insns cond
+
+  | `tSTRr, [|dest1; base; offset; cond; _|] ->
+    let insns = Mem_shift.lift_r_op ~dest1 ~base ~offset Offset Unsigned W St
+    in
+    exec insns cond 
+
+  | `tSTRspi, [|dest1; base; offset; cond; _|] ->
+    let insns = Mem_shift.lift_r_op ~dest1 ~base ~offset:(shift_immediate offset 2) Offset Unsigned W St
+    in
+    exec insns cond 
+
+  | `tSTRBi, [|dest1; base; offset; cond; _|] ->
+    let insns = Mem_shift.lift_r_op ~dest1 ~base ~offset:(shift_immediate offset 2) Offset Unsigned B St
+    in
+    exec insns cond 
+
+  | `tSTRBr, [|dest1; base; offset; cond; _|] ->
+    let insns = Mem_shift.lift_r_op ~dest1 ~base ~offset Offset Unsigned B St
+    in
+    exec insns cond 
+
+  | `tSTRHi, [|dest1; base; offset; cond; _|] ->
+    let insns = Mem_shift.lift_r_op ~dest1 ~base ~offset:(shift_immediate offset 2) Offset Unsigned H St
+    in
+    exec insns cond 
+
+  | `tSTRHr, [|dest1; base; offset; cond; _|] ->
+    let insns = Mem_shift.lift_r_op ~dest1 ~base ~offset Offset Unsigned H St
+    in
+    exec insns cond 
+
   | #Insn.mem_multi as insn, ops -> lift_mem_multi ops insn
   | insn,ops ->
     fail _here_ "ops %s doesn't match mem access insn %s"

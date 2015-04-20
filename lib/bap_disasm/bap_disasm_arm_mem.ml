@@ -23,7 +23,9 @@ let lift_r  ~(dst1 : Var.t) ?(dst2 : Var.t option) ~(base : Var.t)
     | PostIndex, Ld, W, d when d = Env.pc -> Bil.var o_base
     | PreIndex, Ld, W, d when d = Env.pc  -> Bil.(var o_base + offset)
     | PostIndex, _,  _, _               -> Bil.var base
-    | PreIndex, _, _, _ | Offset, _, _, _ -> Bil.(var base + offset) in
+    | PreIndex, _, _, _ | Offset, _, _, _ -> match base with
+      b when b = Env.pc -> Bil.(((var base) land (int Word.(of_int32 0xfffffffcl))) + offset)
+      |  _ -> Bil.(var base + offset) in
 
   (* Create temps for original if this is a jump *)
   let pre_write_back = match mode, operation, size, dst1 with

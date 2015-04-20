@@ -245,6 +245,10 @@ module Insn = struct
     | `STMIA_UPD
     | `STMIB
     | `STMIB_UPD
+    | `tLDMIA
+    | `tSTMIA_UPD
+    | `tPUSH
+    | `tPOP
   ] with bin_io, compare, sexp, enumerate
 
 
@@ -285,6 +289,16 @@ module Insn = struct
     | `LDR_PRE_REG
     | `LDRi12
     | `LDRrs
+    | `tLDRi
+    | `tLDRr
+    | `tLDRpci
+    | `tLDRspi
+    | `tLDRBi
+    | `tLDRBr
+    | `tLDRHi
+    | `tLDRHr
+    | `tLDRSB
+    | `tLDRSH
     | `STRBT_POST_IMM
     | `STRBT_POST_REG
     | `STRB_POST_IMM
@@ -311,6 +325,13 @@ module Insn = struct
     | `STR_PRE_REG
     | `STRi12
     | `STRrs
+    | `tSTRi
+    | `tSTRr
+    | `tSTRspi
+    | `tSTRBi
+    | `tSTRBr
+    | `tSTRHi
+    | `tSTRHr
   ] with bin_io, compare, sexp, enumerate
 
   type branch = [
