@@ -118,7 +118,9 @@ public:
     create(const char *triple, const char *cpu, int debug_level) {
         std::string error;
 
-        if (std::string(triple) == "thumb") {
+        //HACK: Needed because LLVM does not work with just passing 
+        //      "thumb" as triple
+        if (std::string("thumb") == triple) {
             triple = "thumb-eabi";
         }
 
